@@ -2,7 +2,8 @@ use pumpkin_plugin_api::{
     Context, Plugin, PluginMetadata, Server,
     command::{Command, CommandError, CommandNode, CommandSender, ConsumedArgs},
     commands::CommandHandler,
-    events::{EventHandler, EventPriority, PlayerJoinEventData, PlayerLeaveEventData},
+    events::{EventData, EventHandler, EventPriority, PlayerJoinEvent, PlayerLeaveEvent},
+    permission::{Permission, PermissionDefault},
     text::{NamedColor, TextComponent},
 };
 
@@ -10,8 +11,12 @@ use rand::{Rng as _, rng};
 use tracing::*;
 
 struct MyJoinHandler;
-impl EventHandler<PlayerJoinEventData> for MyJoinHandler {
-    fn handle<'a>(&'a self, server: Server, mut event: PlayerJoinEventData) -> PlayerJoinEventData {
+impl EventHandler<PlayerJoinEvent> for MyJoinHandler {
+    fn handle<'a>(
+        &'a self,
+        server: Server,
+        mut event: EventData<PlayerJoinEvent>,
+    ) -> EventData<PlayerJoinEvent> {
         tracing::info!("Player joined with ID: {}", event.player.get_id());
         tracing::info!("Difficulty upon player join: {:?}", server.get_difficulty());
 
@@ -21,12 +26,12 @@ impl EventHandler<PlayerJoinEventData> for MyJoinHandler {
 }
 
 struct MyLeaveHandler;
-impl EventHandler<PlayerLeaveEventData> for MyLeaveHandler {
+impl EventHandler<PlayerLeaveEvent> for MyLeaveHandler {
     fn handle<'a>(
         &'a self,
         server: Server,
-        mut event: PlayerLeaveEventData,
-    ) -> PlayerLeaveEventData {
+        mut event: EventData<PlayerLeaveEvent>,
+    ) -> EventData<PlayerLeaveEvent> {
         tracing::info!("Player left with ID: {}", event.player.get_id());
         tracing::info!(
             "Difficulty upon player leave: {:?}",
@@ -46,7 +51,7 @@ impl Plugin for HelloPlugin {
 
     fn metadata(&self) -> PluginMetadata {
         PluginMetadata {
-            name: "Hello Plugin".into(),
+            name: "hello-pumpkin".into(),
             version: env!("CARGO_PKG_VERSION").into(),
             authors: vec!["Bjorn".into()],
             description: "A simple example plugin".into(),
@@ -72,6 +77,14 @@ impl Plugin for HelloPlugin {
             CommandNode::literal("scissors").execute(RockPaperScissorsExecutor(Choice::Scissors)),
         );
 
+        let permission = Permission {
+            node: "hello-pumpkin:command.rockpaperscisors".to_string(),
+            description: "Allows the player to play rock paper scisors".to_string(),
+            default: PermissionDefault::Allow,
+            children: Vec::new(),
+        };
+
+        context.register_permission(&permission)?;
         context.register_command(command, "hello-pumpkin:command.rockpaperscisors");
         Ok(())
     }
