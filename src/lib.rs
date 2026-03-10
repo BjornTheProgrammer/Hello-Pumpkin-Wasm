@@ -9,8 +9,6 @@ use pumpkin_plugin_api::{
 use rand::{Rng as _, rng};
 use tracing::*;
 
-struct HelloPlugin;
-
 struct MyJoinHandler;
 impl EventHandler<PlayerJoinEventData> for MyJoinHandler {
     fn handle<'a>(&'a self, server: Server, mut event: PlayerJoinEventData) -> PlayerJoinEventData {
@@ -40,6 +38,7 @@ impl EventHandler<PlayerLeaveEventData> for MyLeaveHandler {
     }
 }
 
+struct HelloPlugin;
 impl Plugin for HelloPlugin {
     fn new() -> Self {
         HelloPlugin
