@@ -1,5 +1,5 @@
 use pumpkin_plugin_api::{
-    self as pumpkin, Server,
+    Context, Plugin, PluginMetadata, Server,
     command::{Command, CommandError, CommandNode, CommandSender, ConsumedArgs},
     commands::CommandHandler,
     events::{EventHandler, EventPriority, PlayerJoinEventData, PlayerLeaveEventData},
@@ -40,13 +40,13 @@ impl EventHandler<PlayerLeaveEventData> for MyLeaveHandler {
     }
 }
 
-impl pumpkin::Plugin for HelloPlugin {
+impl Plugin for HelloPlugin {
     fn new() -> Self {
         HelloPlugin
     }
 
-    fn metadata(&self) -> pumpkin::PluginMetadata {
-        pumpkin::PluginMetadata {
+    fn metadata(&self) -> PluginMetadata {
+        PluginMetadata {
             name: "Hello Plugin".into(),
             version: env!("CARGO_PKG_VERSION").into(),
             authors: vec!["Bjorn".into()],
@@ -54,7 +54,7 @@ impl pumpkin::Plugin for HelloPlugin {
         }
     }
 
-    fn on_load(&mut self, context: pumpkin::Context) -> pumpkin::Result<()> {
+    fn on_load(&mut self, context: Context) -> pumpkin_plugin_api::Result<()> {
         info!("Hello from the example plugin!");
         let server = context.get_server();
         let difficulty = server.get_difficulty();
@@ -77,13 +77,13 @@ impl pumpkin::Plugin for HelloPlugin {
         Ok(())
     }
 
-    fn on_unload(&mut self, _context: pumpkin::Context) -> pumpkin::Result<()> {
+    fn on_unload(&mut self, _context: Context) -> pumpkin_plugin_api::Result<()> {
         info!("Example plugin unloaded. Goodbye!");
         Ok(())
     }
 }
 
-pumpkin::register_plugin!(HelloPlugin);
+pumpkin_plugin_api::register_plugin!(HelloPlugin);
 
 #[derive(PartialEq, Debug, Clone, Copy)]
 enum Choice {
