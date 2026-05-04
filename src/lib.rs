@@ -55,6 +55,8 @@ impl Plugin for HelloPlugin {
             version: env!("CARGO_PKG_VERSION").into(),
             authors: vec!["Bjorn".into()],
             description: "A simple example plugin".into(),
+            dependencies: vec![],
+            permissions: vec![],
         }
     }
 
@@ -70,12 +72,14 @@ impl Plugin for HelloPlugin {
             &["rps".to_string(), "rockpaperscissors".to_string()],
             "Play Rock Paper Scissors with the server.",
         );
-        command.then(CommandNode::literal("rock").execute(RockPaperScissorsExecutor(Choice::Rock)));
+
         command
-            .then(CommandNode::literal("paper").execute(RockPaperScissorsExecutor(Choice::Paper)));
-        command.then(
-            CommandNode::literal("scissors").execute(RockPaperScissorsExecutor(Choice::Scissors)),
-        );
+            .then(CommandNode::literal("rock").execute(RockPaperScissorsExecutor(Choice::Rock)))
+            .then(CommandNode::literal("paper").execute(RockPaperScissorsExecutor(Choice::Paper)))
+            .then(
+                CommandNode::literal("scissors")
+                    .execute(RockPaperScissorsExecutor(Choice::Scissors)),
+            );
 
         let permission = Permission {
             node: "hello-pumpkin:command.rockpaperscisors".to_string(),
@@ -143,13 +147,15 @@ impl CommandHandler for RockPaperScissorsExecutor {
         let computer_choice = get_random_choice();
 
         let you_chose = TextComponent::text("You chose: ");
-        you_chose.add_child(TextComponent::text(&format!("{:?}", player_choice)));
-        you_chose.color_named(NamedColor::Aqua);
+        you_chose
+            .add_child(TextComponent::text(&format!("{:?}", player_choice)))
+            .color_named(NamedColor::Aqua);
         sender.send_message(you_chose);
 
         let i_chose = TextComponent::text("I chose: ");
-        i_chose.add_child(TextComponent::text(&format!("{:?}", computer_choice)));
-        i_chose.color_named(NamedColor::Gold);
+        i_chose
+            .add_child(TextComponent::text(&format!("{:?}", computer_choice)))
+            .color_named(NamedColor::Gold);
         sender.send_message(i_chose);
 
         match player_choice.beats(&computer_choice) {
